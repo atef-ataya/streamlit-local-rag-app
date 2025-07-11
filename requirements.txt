@@ -1,0 +1,64 @@
+# streamlit
+# fpdf2
+# pdf2image
+# pillow
+# sentence-transformers
+# chromadb
+# langchain
+# langchain-community
+# langchain-huggingface
+# langchain-chroma
+# langchain-ollama
+# tqdm
+# python-dotenv
+# python-docx
+# unstructured[pdf]
+# openai
+# tiktoken
+# langchain-openai
+# langchain-text-splitters
+# langchain-embeddings
+# langchain-llms
+# langchain-retrievers
+# langchain-document-loaders
+# langchain-vectorstores
+# langchain-prompts
+# langchain-chains
+# langchain-utilities
+# langchain-graph
+# langchain-visualization
+# langchain-llm-metrics
+# langchain-llm-metrics-ollama            
+# Core Streamlit and Web Interface
+streamlit>=1.28.0
+
+# PDF Processing and Generation
+fpdf2>=2.7.0
+pdf2image>=3.1.0
+pillow>=10.0.0
+
+# LangChain Core
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-core>=0.1.0
+
+# LangChain Integrations
+langchain-huggingface>=0.0.1
+langchain-chroma>=0.1.0
+langchain-ollama>=0.1.0
+langchain-text-splitters>=0.0.1
+
+# Embeddings and Vector Storage
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+
+# Document Processing
+unstructured[pdf]>=0.11.0
+python-docx>=0.8.11
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+
+# Optional: For better error handling and logging
+typing-extensions>=4.8.0
