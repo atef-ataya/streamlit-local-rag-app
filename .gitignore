@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv/
+# Streamlit
+.streamlit/
+# Vectorstores, embeddings, large data
+data/
+vectors/
+*.db
+# OS
+.DS_Store
+node_modules
+# Python virtual env
+venv/
+.venv/
