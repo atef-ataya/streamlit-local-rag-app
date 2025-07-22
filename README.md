@@ -1,313 +1,172 @@
-# 🤖 Local RAG System - Setup Guide
+# 🧠 Local RAG App - Your Private AI Document Assistant
 
-A complete guide to set up your privacy-first, local RAG (Retrieval-Augmented Generation) system.
+<div align="center">
+
+![Local RAG App Banner](https://github.com/atef-ataya/streamlit-local-rag-app/assets/your-image.png)
+
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+**Build your own ChatGPT-like system that runs 100% offline. No API keys. No data leaves your machine.**
+
+[**📺 Watch the Tutorial**](https://youtube.com/your-link) | [**🚀 Live Demo**](https://your-demo-link) | [**📝 Blog Post**](https://your-blog-link)
+
+</div>
+
+---
+
+## ✨ Features
+
+- 🔒 **100% Private** - Your data never leaves your machine
+- 📄 **Multi-Format Support** - PDFs, Word docs, PowerPoints
+- 🔍 **OCR Capabilities** - Search even scanned documents
+- 💬 **Natural Language Q&A** - Ask questions in plain English
+- 📊 **Source Citations** - Know exactly where answers come from
+- 💾 **Export Results** - Download Q&A sessions as formatted PDFs
+- 🚀 **Fast & Lightweight** - Runs smoothly on consumer hardware
+
+## 🎥 Demo
+
+<div align="center">
+  <img src="https://github.com/atef-ataya/streamlit-local-rag-app/assets/demo.gif" alt="Demo GIF" width="600">
+</div>
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Streamlit
+- **LLM**: Ollama (Mistral/Llama2)
+- **Embeddings**: Sentence Transformers
+- **Vector Store**: ChromaDB
+- **Document Processing**: LangChain
+- **OCR**: Unstructured
 
 ## 📋 Prerequisites
 
-- **Python 3.8+** (recommended: Python 3.10 or 3.11)
-- **8GB+ RAM** (for embedding models and local LLM)
-- **5GB+ free disk space** (for models and dependencies)
-- **Internet connection** (for initial setup only)
+Before you begin, ensure you have:
+
+- Python 3.8 or higher
+- [Ollama](https://ollama.ai/) installed
+- At least 8GB RAM (16GB recommended)
+- 10GB free disk space
 
 ## 🚀 Quick Start
 
-### 1. Clone or Download the Project
-
+### 1. Clone the repository
 ```bash
-# Create project directory
-mkdir local-rag-system
-cd local-rag-system
-
-# Copy all the provided Python files into this directory
+git clone https://github.com/atef-ataya/streamlit-local-rag-app.git
+cd streamlit-local-rag-app
 ```
 
-### 2. Install Python Dependencies
-
+### 2. Create a virtual environment
 ```bash
-# Install all required packages
-pip install -r requirements.txt
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# Alternative: Use virtual environment (recommended)
-python -m venv rag-env
-source rag-env/bin/activate  # On Windows: rag-env\Scripts\activate
+### 3. Install dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Install and Setup Ollama
-
-#### For Windows:
-
-1. Download from [https://ollama.ai/](https://ollama.ai/)
-2. Run the installer
-3. Open Command Prompt and run:
-
-```cmd
+### 4. Install and start Ollama
+```bash
+# Pull the Mistral model (or any model of your choice)
 ollama pull mistral
 ```
 
-#### For macOS:
-
-```bash
-# Install Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Pull the Mistral model
-ollama pull mistral
-```
-
-#### For Linux:
-
-```bash
-# Install Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Start Ollama service
-sudo systemctl start ollama
-sudo systemctl enable ollama
-
-# Pull the Mistral model
-ollama pull mistral
-```
-
-### 4. Verify Installation
-
-```bash
-# Test the RAG utilities
-python test_rag_utils.py
-
-# Verify Ollama is working
-ollama list
-```
-
-## 📁 Project Structure
-
-After setup, your directory should look like this:
-
-```
-local-rag-system/
-├── rag_utils.py          # Core RAG functionality
-├── embed_documents.py    # Document embedding script
-├── query_rag.py         # Command-line query interface
-├── app.py               # Streamlit web interface
-├── test_rag_utils.py    # Test suite
-├── requirements.txt     # Python dependencies
-├── sample.txt           # Sample document
-├── SETUP_GUIDE.md       # This file
-└── vectorstore/         # Created after first embedding
-```
-
-## 🎯 Usage Workflows
-
-### Method 1: Command Line Interface
-
-1. **Embed documents:**
-
-```bash
-python embed_documents.py
-```
-
-2. **Query documents:**
-
-```bash
-python query_rag.py
-```
-
-### Method 2: Web Interface (Recommended)
-
-1. **Start the web app:**
-
+### 5. Run the application
 ```bash
 streamlit run app.py
 ```
 
-2. **Open your browser** to the displayed URL (usually `http://localhost:8501`)
+Your app should now be running at `http://localhost:8501` 🎉
 
-3. **Upload documents** using the sidebar
+## 📖 Usage
 
-4. **Ask questions** in the chat interface
+1. **Upload Documents**: Drag and drop your PDFs, Word docs, or PowerPoints
+2. **Wait for Processing**: Documents are chunked and embedded locally
+3. **Ask Questions**: Type natural language questions about your documents
+4. **Get Answers**: Receive detailed answers with source citations
+5. **Export Results**: Download your Q&A session as a PDF
 
-## 📄 Supported Document Formats
+### Example Questions
 
-- **📝 Text files** (`.txt`)
-- **📄 PDF files** (`.pdf`) - with OCR support for scanned documents
-- **📊 Word documents** (`.docx`)
-- **📈 PowerPoint presentations** (`.pptx`)
+- "What are the key findings in this research?"
+- "Summarize the main points from the meeting notes"
+- "Find all mentions of budget in these documents"
+- "What are the action items from the presentation?"
 
-## 🔧 Troubleshooting
+## 🔧 Configuration
 
-### Common Issues and Solutions
-
-#### 1. "Import error" when running scripts
-
-**Solution:**
-
-```bash
-pip install -r requirements.txt
-```
-
-#### 2. "Ollama connection failed"
-
-**Solutions:**
-
-- Ensure Ollama is installed and running
-- Try: `ollama serve` (if not running as service)
-- Verify model: `ollama list`
-- Pull model: `ollama pull mistral`
-
-#### 3. "PDF processing failed"
-
-**Solutions:**
-
-- Install additional dependencies:
-
-```bash
-# For Ubuntu/Debian
-sudo apt-get install poppler-utils
-
-# For macOS
-brew install poppler
-
-# For Windows - pdf2image should work out of the box
-```
-
-#### 4. "ChromaDB errors"
-
-**Solution:**
-
-```bash
-# Clear any corrupted vectorstore
-rm -rf vectorstore/
-# Re-run embedding
-python embed_documents.py
-```
-
-#### 5. "Unicode/Font errors in PDF generation"
-
-**Solution:**
-
-- Download DejaVu fonts:
-
-```bash
-# Create fonts directory
-mkdir fonts
-# Download DejaVuSans.ttf to fonts/ directory
-# Or the system will fall back to basic fonts
-```
-
-### Performance Optimization
-
-#### For Better Speed:
-
-- Use an SSD for vectorstore storage
-- Increase chunk size for fewer, larger chunks
-- Use GPU-enabled embeddings (if available)
-
-#### For Lower Memory Usage:
-
-- Reduce chunk size and overlap
-- Process fewer documents at once
-- Close other applications
-
-## 🔒 Privacy & Security
-
-This system is designed to be completely private:
-
-- ✅ **No data leaves your machine**
-- ✅ **No API calls to external services**
-- ✅ **No internet required after setup**
-- ✅ **Local LLM processing**
-- ✅ **Local vector storage**
-
-## ⚙️ Advanced Configuration
-
-### Changing the LLM Model
-
-Edit the model name in your scripts:
+You can customize the app by modifying `config.py`:
 
 ```python
-# In rag_utils.py and query_rag.py
-OLLAMA_MODEL = "llama2"  # or "codellama", "neural-chat", etc.
+# Model settings
+MODEL_NAME = "mistral"  # or "llama2", "codellama"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+# Chunking settings
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
+
+# UI settings
+MAX_FILE_SIZE = 200  # MB
+SUPPORTED_FORMATS = ['.pdf', '.docx', '.pptx']
 ```
 
-Then pull the new model:
+## 🏗️ Project Structure
 
-```bash
-ollama pull llama2
+```
+streamlit-local-rag-app/
+├── app.py                 # Main Streamlit application
+├── components/
+│   ├── document_processor.py  # Document handling logic
+│   ├── embeddings.py          # Embedding generation
+│   ├── qa_chain.py           # Question-answering chain
+│   └── ui_components.py      # Reusable UI elements
+├── utils/
+│   ├── config.py            # Configuration settings
+│   └── helpers.py           # Helper functions
+├── requirements.txt         # Python dependencies
+├── README.md               # This file
+└── .gitignore             # Git ignore rules
 ```
 
-### Adjusting Chunk Sizes
+## 🤝 Contributing
 
-Edit in `rag_utils.py`:
+Contributions are what make the open source community amazing! Any contributions you make are **greatly appreciated**.
 
-```python
-# Larger chunks = more context, fewer chunks
-chunk_size = 1000
-chunk_overlap = 200
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-# Smaller chunks = more precise retrieval
-chunk_size = 300
-chunk_overlap = 50
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-### Custom Embedding Models
+## 📝 License
 
-Edit in `rag_utils.py`:
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
-```python
-# Faster, smaller model
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+## 🙏 Acknowledgments
 
-# Better quality, larger model
-MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
-```
+- [LangChain](https://github.com/hwchase17/langchain) for the amazing framework
+- [Ollama](https://ollama.ai/) for making local LLMs accessible
+- [Streamlit](https://streamlit.io/) for the intuitive web framework
+- The open-source community for continuous inspiration
 
-## 🆘 Getting Help
+## 📬 Contact
 
-### If you encounter issues:
+Atef Ataya - [@your_twitter](https://twitter.com/your_twitter) - your.email@example.com
 
-1. **Run the test suite:**
+Project Link: [https://github.com/atef-ataya/streamlit-local-rag-app](https://github.com/atef-ataya/streamlit-local-rag-app)
 
-   ```bash
-   python test_rag_utils.py
-   ```
+---
 
-2. **Check the logs** in your terminal for specific error messages
+<div align="center">
 
-3. **Verify all components:**
+**If you found this helpful, please ⭐ this repository!**
 
-   - Python version: `python --version`
-   - Ollama status: `ollama list`
-   - Dependencies: `pip list | grep langchain`
-
-4. **Try the minimal example:**
-   ```bash
-   # Just test basic functionality
-   python -c "from rag_utils import load_documents; print('✅ Import successful')"
-   ```
-
-### System Requirements Check
-
-**Minimum Requirements:**
-
-- 4GB RAM (for basic functionality)
-- 2GB free disk space
-- Python 3.8+
-
-**Recommended Setup:**
-
-- 8GB+ RAM
-- 5GB+ free disk space
-- Python 3.10+
-- SSD storage
-
-## 🎉 You're Ready!
-
-Once setup is complete, you can:
-
-1. **Upload any supported documents**
-2. **Ask questions about their content**
-3. **Get answers with source citations**
-4. **Export answers as PDFs**
-5. **Keep everything completely private**
-
-Enjoy your local RAG system! 🚀
+</div>
