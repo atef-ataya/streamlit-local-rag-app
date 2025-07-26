@@ -1,27 +1,3 @@
-# from rag_utils import load_documents, split_documents
-
-# def main():
-#     # Update this with a valid path to your local .txt or .pdf file
-#     file_path = "sample.txt"  # or "sample.pdf"
-    
-#     # Step 1: Load the document
-#     try:
-#         docs = load_documents(file_path)
-#         print(f"[✓] Loaded {len(docs)} document(s)")
-#     except Exception as e:
-#         print(f"[!] Failed to load document: {e}")
-#         return
-
-#     # Step 2: Split the document into chunks
-#     chunks = split_documents(docs)
-#     print(f"[✓] Document split into {len(chunks)} chunks")
-    
-#     # Optional: Print a preview
-#     for i, chunk in enumerate(chunks[:3]):
-#         print(f"\n--- Chunk {i+1} ---\n{chunk.page_content}")
-
-# if __name__ == "__main__":
-#     main()
 #!/usr/bin/env python3
 """
 Test Script for RAG Utils
