@@ -1,160 +1,4 @@
-# import os
-# import tempfile
-# import logging
-# import re
-# from typing import List, Tuple, Any
-# from fpdf import FPDF
-# from pdf2image import convert_from_path
-# from langchain_huggingface import HuggingFaceEmbeddings
-# from langchain_chroma import Chroma
-# from langchain_ollama import OllamaLLM
-# from langchain.chains import RetrievalQA
-# from langchain.prompts import PromptTemplate
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
-# from langchain_community.document_loaders import (
-#     PyPDFLoader, UnstructuredPDFLoader,
-#     UnstructuredWordDocumentLoader, UnstructuredPowerPointLoader
-# )
 
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
-# os.environ["ANONYMIZED_TELEMETRY"] = "false"
-# MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
-# class SafePDF(FPDF):
-#     def setup_font(self):
-#         """Adds a Unicode-compatible font."""
-#         try:
-#             self.add_font("DejaVu", "", "DejaVuSans.ttf")
-#             self.set_font("DejaVu", size=11)
-#             return True
-#         except RuntimeError:
-#             logger.warning("DejaVuSans.ttf not found. Falling back to Helvetica.")
-#             self.set_font("Helvetica", size=11)
-#             return False
-
-#     def safe_text(self, text: str) -> str:
-#         """Encodes text for the current font."""
-#         # For a TTF font, UTF-8 is the way to go.
-#         # For Helvetica, we fall back to latin-1.
-#         if self.font_family == "dejavu":
-#              return text
-#         return text.encode('latin-1', 'replace').decode('latin-1')
-
-#     def add_section_title(self, title):
-#         self.set_font(self.font_family, "B", 12)
-#         self.cell(0, 10, self.safe_text(title), 0, 1)
-#         self.ln(2)
-
-#     def add_body_text(self, text):
-#         self.set_font(self.font_family, "", 11)
-#         try:
-#             self.multi_cell(0, 7, self.safe_text(text))
-#         except Exception as e:
-#             logger.error(f"FPDF error rendering text: {e}")
-#             self.multi_cell(0, 7, "Error: A portion of the text could not be rendered.")
-#         self.ln(5)
-# # Save Answers as PDF
-# from fpdf import FPDF
-# from io import BytesIO
-# import os
-
-# class UnicodePDF(FPDF):
-#     def __init__(self):
-#         super().__init__()
-#         self.add_font("DejaVu", "", os.path.join("fonts", "DejaVuSans.ttf"), uni=True)
-
-# def save_answer_as_file(answer, sources):
-#     try:
-#         if not answer:
-#             return None
-
-#         pdf = UnicodePDF()
-#         pdf.add_page()
-#         pdf.set_font("DejaVu", size=12)
-
-#         pdf.multi_cell(0, 10, "Answer:\n" + answer)
-
-#         if sources:
-#             pdf.ln(5)
-#             pdf.set_font("DejaVu", size=12)
-#             pdf.multi_cell(0, 10, "\nSources:\n")
-#             for i, doc in enumerate(sources, 1):
-#                 snippet = doc.page_content[:300] + "..." if len(doc.page_content) > 300 else doc.page_content
-#                 pdf.multi_cell(0, 10, f"Source {i}: {snippet}")
-#                 pdf.ln(2)
-
-#         output = BytesIO()
-#         pdf.output(output)
-#         return output.getvalue()
-
-#     except Exception as e:
-#         print("Error generating PDF:", e)
-#         return None
-
-
-# # The rest of the functions remain unchanged
-# def process_uploaded_files(uploaded_files: list) -> Tuple[list, dict, dict, dict, Any]:
-#     docs, chunk_map, ocr_status, preview_images = [], {}, {}, {}
-#     for file in uploaded_files:
-#         try:
-#             filename = file.name
-#             with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as tmp:
-#                 tmp.write(file.getvalue())
-#                 tmp_path = tmp.name
-#             if filename.lower().endswith(".pdf"):
-#                 file_docs, ocr_stat, preview = process_pdf(tmp_path)
-#             elif filename.lower().endswith((".docx", ".doc")):
-#                 file_docs, ocr_stat, preview = UnstructuredWordDocumentLoader(tmp_path).load(), "N/A", None
-#             elif filename.lower().endswith(".pptx"):
-#                 file_docs, ocr_stat, preview = UnstructuredPowerPointLoader(tmp_path).load(), "N/A", None
-#             else:
-#                 continue
-#             os.unlink(tmp_path)
-#             ocr_status[filename] = ocr_stat
-#             preview_images[filename] = preview
-#             splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-#             split_docs = splitter.split_documents(file_docs)
-#             for doc in split_docs:
-#                 doc.metadata["source"] = filename
-#             docs.extend(split_docs)
-#             chunk_map[filename] = [doc.page_content for doc in split_docs]
-#         except Exception as e:
-#             logger.error(f"Error processing {file.name}: {e}")
-#             ocr_status[file.name] = f"❌ Error: {e}"
-#     if not docs:
-#         return [], {}, {}, {}, None
-#     vectorstore = Chroma.from_documents(
-#         documents=docs,
-#         embedding=HuggingFaceEmbeddings(model_name=MODEL_NAME)
-#     )
-#     logger.info("In-memory vector store created successfully.")
-#     return docs, chunk_map, ocr_status, preview_images, vectorstore
-
-# def process_pdf(path: str) -> Tuple[List, str, Any]:
-#     try:
-#         docs, stat = UnstructuredPDFLoader(path).load(), "✅ OCR Enabled"
-#     except Exception:
-#         docs, stat = PyPDFLoader(path).load(), "⚠️ Text Only"
-#     preview = None
-#     try:
-#         preview = convert_from_path(path, first_page=1, last_page=1, dpi=100)[0]
-#     except Exception as e:
-#         logger.warning(f"Could not get PDF preview: {e}")
-#     return docs, stat, preview
-
-# def query_documents(query: str, vs: Chroma) -> Tuple[str, List]:
-#     if not vs:
-#         return "Database not initialized. Please upload documents.", []
-#     llm = OllamaLLM(model="mistral", temperature=0.2)
-#     template = "Context: {context}\n\nQuestion: {question}\n\nAnswer:"
-#     prompt = PromptTemplate.from_template(template)
-#     qa_chain = RetrievalQA.from_chain_type(
-#         llm=llm, retriever=vs.as_retriever(search_kwargs={"k": 4}),
-#         return_source_documents=True, chain_type_kwargs={"prompt": prompt}
-#     )
-#     result = qa_chain.invoke({"query": query})
-#     return result.get("result", "No answer found."), result.get("source_documents", [])
 import os
 import tempfile
 import logging
@@ -221,6 +65,14 @@ class SafePDF(FPDF):
             font_path = self._find_font_path()
             if font_path:
                 self.add_font("DejaVu", "", font_path, uni=True)
+                # Try to add bold variant if available
+                bold_path = font_path.replace("DejaVuSans.ttf", "DejaVuSans-Bold.ttf")
+                if os.path.exists(bold_path):
+                    self.add_font("DejaVu", "B", bold_path, uni=True)
+                    logger.info("Bold DejaVu font loaded successfully")
+                else:
+                    logger.info("Bold DejaVu font not found, will use regular font for bold text")
+                
                 self.set_font("DejaVu", size=11)
                 self.unicode_font_loaded = True
                 logger.info("Unicode font loaded successfully")
@@ -234,14 +86,19 @@ class SafePDF(FPDF):
     def _find_font_path(self):
         """Find DejaVu font in common locations"""
         possible_paths = [
-            "fonts/DejaVuSans.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            "/System/Library/Fonts/DejaVuSans.ttf",
-            "C:\\Windows\\Fonts\\DejaVuSans.ttf"
+            "DejaVuSans.ttf",  # Root directory
+            "fonts/DejaVuSans.ttf",  # fonts subdirectory
+            "./DejaVuSans.ttf",  # Current directory
+            "./fonts/DejaVuSans.ttf",  # Current directory fonts
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux
+            "/System/Library/Fonts/DejaVuSans.ttf",  # macOS
+            "C:\\Windows\\Fonts\\DejaVuSans.ttf"  # Windows
         ]
         for path in possible_paths:
             if os.path.exists(path):
+                logger.info(f"Found DejaVu font at: {path}")
                 return path
+        logger.warning("DejaVu font not found in any expected location")
         return None
     
     def safe_text(self, text: str) -> str:
@@ -270,14 +127,22 @@ class SafePDF(FPDF):
     
     def add_title(self, title: str):
         """Add a title to the PDF"""
-        self.set_font(self.font_family, 'B', 16)
+        try:
+            self.set_font(self.font_family, 'B', 16)
+        except:
+            # Fallback if bold not available
+            self.set_font(self.font_family, '', 16)
         self.cell(0, 10, self.safe_text(title), ln=True, align='C')
         self.ln(5)
     
     def add_section(self, title: str, content: str):
         """Add a section with title and content"""
         # Section title
-        self.set_font(self.font_family, 'B', 14)
+        try:
+            self.set_font(self.font_family, 'B', 14)
+        except:
+            # Fallback if bold not available
+            self.set_font(self.font_family, '', 14)
         self.cell(0, 10, self.safe_text(title), ln=True)
         self.ln(2)
         
@@ -286,7 +151,7 @@ class SafePDF(FPDF):
         self._write_wrapped_text(content)
         self.ln(5)
     
-    def _write_wrapped_text(self, text: str, max_width: int = 80):
+    def _write_wrapped_text(self, text: str):
         """Write text with proper wrapping and page breaks"""
         safe_text = self.safe_text(text)
         paragraphs = safe_text.split('\n')
@@ -296,21 +161,31 @@ class SafePDF(FPDF):
                 self.ln()
                 continue
             
-            # Wrap long lines
-            wrapped_lines = textwrap.wrap(paragraph, width=max_width)
+            # Use multi_cell with automatic wrapping instead of manual textwrap
+            # Check if we need a new page before writing
+            if self.get_y() > 250:
+                self.add_page()
             
-            for line in wrapped_lines:
-                # Check if we need a new page
-                if self.get_y() > 250:
-                    self.add_page()
-                
+            try:
+                # Let FPDF handle the wrapping automatically
+                self.multi_cell(0, 6, paragraph, align='L')
+            except Exception as e:
+                logger.warning(f"Failed to write paragraph: {e}")
+                # Ultra-safe fallback with shorter text
                 try:
-                    self.multi_cell(0, 6, line, align='L')
-                except Exception as e:
-                    logger.warning(f"Failed to write line: {e}")
-                    # Ultra-safe fallback
-                    safe_line = ''.join(c for c in line if ord(c) < 128)
-                    self.multi_cell(0, 6, safe_line or "[Content unavailable]", align='L')
+                    # Try with ASCII-only text
+                    safe_paragraph = ''.join(c for c in paragraph if ord(c) < 128)
+                    if safe_paragraph.strip():
+                        self.multi_cell(0, 6, safe_paragraph, align='L')
+                    else:
+                        self.multi_cell(0, 6, "[Content contains unsupported characters]", align='L')
+                except Exception as e2:
+                    logger.error(f"Even fallback failed: {e2}")
+                    # Last resort - just add a placeholder
+                    try:
+                        self.cell(0, 6, "[Content unavailable]", ln=True)
+                    except:
+                        pass  # Give up on this content
 
 def load_documents(file_path: str) -> List:
     """
@@ -624,10 +499,9 @@ def save_answer_as_file(answer: str, sources: List, query: str = "") -> bytes:
         pdf = SafePDF(orientation='P', unit='mm', format='A4')
         pdf.add_page()
         
-        # Set margins
-        pdf.set_left_margin(15)
-        pdf.set_right_margin(15)
-        pdf.set_top_margin(15)
+        # Set proper margins (left, top, right)
+        pdf.set_margins(20, 20, 20)
+        pdf.set_auto_page_break(auto=True, margin=20)
         
         # Add title
         pdf.add_title("RAG Query Results")
@@ -656,16 +530,8 @@ def save_answer_as_file(answer: str, sources: List, query: str = "") -> bytes:
                 
                 pdf.add_section(f"Source {i} - {source_name}:", content)
         
-        # Generate PDF
-        pdf_output = pdf.output(dest='S')
-        
-        # Handle different output types
-        if isinstance(pdf_output, str):
-            return pdf_output.encode('latin-1', errors='ignore')
-        elif isinstance(pdf_output, bytearray):
-            return bytes(pdf_output)
-        else:
-            return pdf_output
+        # Generate PDF with correct output method
+        return bytes(pdf.output())
             
     except Exception as e:
         logger.error(f"Error generating PDF: {e}")
@@ -697,3 +563,5 @@ def get_file_info(vectorstore_dir: str = VECTORSTORE_DIR) -> Dict[str, Any]:
         info["status"] = "⚠️ Not Found"
     
     return info
+
+

@@ -295,6 +295,42 @@ def display_chat_interface():
             st.session_state.chat_history = []
             st.rerun()
     
+    # Display most recent answer if available
+    if st.session_state.chat_history:
+        latest_chat = st.session_state.chat_history[-1]
+        st.markdown("---")
+        st.subheader("🧠 Latest Answer")
+        
+        with st.container():
+            st.markdown(f"**Question:** {latest_chat['query']}")
+            st.markdown(f"**Answer:** {latest_chat['answer']}")
+            
+            if latest_chat['sources']:
+                st.subheader("📚 Sources")
+                for i, source in enumerate(latest_chat['sources'], 1):
+                    source_name = source.metadata.get('source', 'Unknown')
+                    with st.expander(f"📄 Source {i} - {source_name}"):
+                        st.text(source.page_content)
+                
+                # Generate PDF content for latest answer
+                try:
+                    pdf_content = save_answer_as_file(latest_chat['answer'], latest_chat['sources'], latest_chat['query'])
+                    if pdf_content:
+                        timestamp = latest_chat['timestamp'].strftime("%Y%m%d_%H%M%S")
+                        filename = f"rag_answer_{timestamp}.pdf"
+                        
+                        st.download_button(
+                            label="📥 Download Latest Answer as PDF",
+                            data=pdf_content,
+                            file_name=filename,
+                            mime="application/pdf",
+                            key=f"download_latest_{timestamp}"
+                        )
+                    else:
+                        st.error("❌ Failed to generate PDF")
+                except Exception as e:
+                    st.error(f"❌ Error generating PDF: {str(e)}")
+    
     # Display chat history
     if st.session_state.chat_history:
         st.markdown("---")
@@ -312,12 +348,25 @@ def display_chat_interface():
                         st.markdown(f"*Source {j} - {source_name}:*")
                         st.text(source.page_content[:200] + "..." if len(source.page_content) > 200 else source.page_content)
                 
-                # Download button for this specific answer
-                if st.button(f"📥 Download Answer {len(st.session_state.chat_history)-i}", key=f"download_{i}"):
-                    download_answer(chat['query'], chat['answer'], chat['sources'])
+                # Generate PDF for historical answers
+                try:
+                    pdf_content = save_answer_as_file(chat['answer'], chat['sources'], chat['query'])
+                    if pdf_content:
+                        timestamp = chat['timestamp'].strftime("%Y%m%d_%H%M%S")
+                        filename = f"rag_answer_{timestamp}.pdf"
+                        
+                        st.download_button(
+                            label=f"📥 Download Answer {len(st.session_state.chat_history)-i}",
+                            data=pdf_content,
+                            file_name=filename,
+                            mime="application/pdf",
+                            key=f"download_history_{i}_{timestamp}"
+                        )
+                except Exception as e:
+                    st.error(f"❌ Error generating PDF for historical answer: {str(e)}")
 
 def process_query(query: str) -> None:
-    """Process a user query and display results"""
+    """Process a user query and add to chat history"""
     if not query.strip():
         st.warning("⚠️ Please enter a question")
         return
@@ -335,51 +384,11 @@ def process_query(query: str) -> None:
             }
             st.session_state.chat_history.append(chat_entry)
             
-            # Display results
-            st.markdown("---")
-            st.subheader("🧠 Answer")
-            st.markdown(answer)
-            
-            if sources:
-                st.subheader("📚 Sources")
-                for i, source in enumerate(sources, 1):
-                    source_name = source.metadata.get('source', 'Unknown')
-                    with st.expander(f"📄 Source {i} - {source_name}"):
-                        st.text(source.page_content)
-                
-                # Download button
-                if st.button("📥 Download Answer as PDF"):
-                    download_answer(query, answer, sources)
-            else:
-                st.info("ℹ️ No specific sources found for this query")
+            # Clear the input by rerunning
+            st.rerun()
             
         except Exception as e:
             st.error(f"❌ Error processing query: {str(e)}")
-
-def download_answer(query: str, answer: str, sources: List) -> None:
-    """Generate and provide download for the answer"""
-    try:
-        # Generate PDF
-        pdf_content = save_answer_as_file(answer, sources, query)
-        
-        if pdf_content:
-            # Create download button
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"rag_answer_{timestamp}.pdf"
-            
-            st.download_button(
-                label="📥 Download PDF",
-                data=pdf_content,
-                file_name=filename,
-                mime="application/pdf",
-                key=f"download_{timestamp}"
-            )
-            st.success("✅ PDF generated successfully!")
-        else:
-            st.error("❌ Failed to generate PDF")
-            
-    except Exception as e:
-        st.error(f"❌ Error generating download: {str(e)}")
 
 def display_document_explorer():
     """Display document chunks explorer"""
