@@ -11,7 +11,7 @@
 
 **Build your own ChatGPT-like system that runs 100% offline. No API keys. No data leaves your machine.**
 
-[**📺 Watch the Tutorial**](https://youtube.com/your-link) | [**🚀 Live Demo**](https://your-demo-link) | [**📝 Blog Post**](https://your-blog-link)
+[**📺 Watch the Tutorial**](https://youtu.be/BQEAxIkCqnQ?si=pun7mQIB6bfgO5dN) 
 
 </div>
 
@@ -159,7 +159,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## 📬 Contact
 
-Atef Ataya - [@your_twitter](https://twitter.com/your_twitter) - your.email@example.com
+Atef Ataya - [@atef_ataya](https://twitter.com/atef_ataya) - contact@atefataya.com
 
 Project Link: [https://github.com/atef-ataya/streamlit-local-rag-app](https://github.com/atef-ataya/streamlit-local-rag-app)
 
