@@ -30,7 +30,7 @@
 ## 🎥 Demo
 
 <div align="center">
-  <img src="https://github.com/atef-ataya/streamlit-local-rag-app/assets/demo.gif" alt="Demo GIF" width="600">
+  <img src="https://github.com/atef-ataya/streamlit-local-rag-app/assets/demo.gif" alt="Demo GIF" width="600"> 
 </div>
 
 ## 🛠️ Tech Stack
